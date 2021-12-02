@@ -15,19 +15,14 @@ use Illuminate\Support\Facades\Hash;
 class ApiController extends Controller
 {
     public function login(Request $request){
-        //$data = $request->all();
-        //var_dump($data);
-        // $email = $request->json()->email; // veri genellikle json gelicegi icin boyle kullancan
+        
         $email = $request->email;
         $password = $request->password;
 
-        if(Auth::attempt(['email' => $email, 'password' => $password])) {// attemp'i eşleştirecegi alanlarda,
-            $user = Auth::user();              //  kullanıyoruz. gelen email ve password'e denk gelen verileri veritabanında varsa calisir  
-            //$id = Auth::user()->id;  
-            //$success['token'] = User::find($id)->createToken('login')->accessToken;
-            //$user = User::where('id', $id)->first();
-            //$token = $user->createToken('login')->accessToken;
-            $success['token'] = $user->createToken('login')->accessToken; // buradaki login veritabaninda outh_access_token tablosunda tutuluyor
+        if(Auth::attempt(['email' => $email, 'password' => $password])) {
+            $user = Auth::user();              
+            
+            $success['token'] = $user->createToken('login')->accessToken; 
 
            return response()->json([
                'response' => $success,
@@ -41,11 +36,8 @@ class ApiController extends Controller
     }
 
     public function logout(){
-        if(Auth::check()){ // check ile kullanicinin giris yapip yapmadigi kontrol edilir
-            //$user = Auth::user()->token();
+        if(Auth::check()){
             Auth::user()->token()->revoke();
-            //$data = User::where('id', $user->user_id)->first();
-            //return $user;
             return response()->json([
                 'success' => 'Successfully logged out'
             ], 200);
@@ -54,7 +46,7 @@ class ApiController extends Controller
 
     public function register(Request $request){
    
-            $this->validate($request, [ // validate ile gelen verilerde dogrulama yapiyoruz
+            $this->validate($request, [
                 'name' => 'required|min:2',
                 'email' => 'required|email|unique:users',
                 //'password' => 'required|min:8',
@@ -74,15 +66,7 @@ class ApiController extends Controller
                 'token' => $token
             ], 200);
         
-            /*return response()->json([
-                'error' => 'Unauthorized',
-                'success'=> false
-            ],401);*/
         
-        
-
-     
-
         // register second method 
         /*$user = new User();
         $user->name = $request->name;
@@ -98,7 +82,7 @@ class ApiController extends Controller
 
     public function userOperationAdd(Request $request){
         
-        $this->validate($request, [ // validate ile gelen verilerde dogrulama yapiyoruz
+        $this->validate($request, [ 
             'total' => 'required',
             'category' => 'required',
             'currency' => 'required',
@@ -123,12 +107,9 @@ class ApiController extends Controller
     }
 
     public function getUserOperation(){
-        # TODO : MİDDLEWARE DİSİNDA OLAN ROTALARİ MİDDLEWARE İCİNDE ALMAYİ UNUTMA
-        //$userId = Auth::user()->id;
-        //return 'geldi';
+      
         $userId = Auth::user()->id;
-        //return response()->json(['success' => true , 'user' => $user]);
-        //$userId = Auth::user()->id;
+
         $operations = UserOperation::with('user', 'category', 'currency')
                                     ->where('user_id', $userId)->get();
         return $operations;
@@ -234,10 +215,6 @@ class ApiController extends Controller
         return $currencies;
     }
     
-    # TODO : BACKEND TARAFİNDA YAPİLACAKLAR 1 : KULLANİCİ FRONTEND TARAFİNDA İSLEM EKLERKEN KATEGORİLERİ VE
-            # PARA BİRİMLERİNİ SECEBİLMELİ BUNUN İCİN HEMEN İKİ AYRI APİ YAZ BİRİSİ KATEGORİLERİ GETİRSİN,
-            # DİĞERİ PARA BİRİMLERİNİ.
-    # TODO : BACKEND TARAFİNDA YAPİLACAKLAR 2 : ALANLARA GORE FİLTRELEME DURUMLARİNİ YAP GENEL YAPİYİ 
-            # OTURTTUKTAN SONRA CUNKU BURASİ BİRAZ DETAYA KACİYOR
+    
     # TODO : SECİLEN İKİ TARİH ARASİNDA Kİ TUTARLARİN TRY CİNSİNDEN EKRANDA GORUNMESİ
 }
